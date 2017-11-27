@@ -2,3 +2,4 @@ Atalk*.java
 *.class
 *.tokens
 /.antlr
+/personal

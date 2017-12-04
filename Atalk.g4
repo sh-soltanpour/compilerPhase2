@@ -14,22 +14,6 @@ grammar Atalk;
 		 print("Stack offset: " + SymbolTable.top.getOffset(Register.SP));
   	SymbolTable.pop();
 	}
-	void putLocalVar(String name, Type type) throws ItemAlreadyExistsException{
-		SymbolTable.top.put(
-            new SymbolTableLocalVariableItem(
-                new Variable(name, type),
-                SymbolTable.top.getOffset(Register.SP)
-            )
-        );
-	 }
-	 void putGlobalVar(String name, Type type) throws ItemAlreadyExistsException{
-		SymbolTable.top.put(
-            new SymbolTableGlobalVariableItem(
-                new Variable(name, type),
-                SymbolTable.top.getOffset(Register.GP)
-            )
-        );
-	 }
 }
 program:
 		{beginScope();}(actor | NL)*{endScope();}
@@ -37,15 +21,14 @@ program:
 
 actor:
 		'actor' name=ID '<' mailboxSize=CONST_NUM '>' NL
-		 {
-				try{
-					Tools.putActor($name.text,Integer.parseInt($mailboxSize.text));
-				}
-				catch(ItemAlreadyExistsException e) {
-            	print("Exists");
-        }
-				finally{beginScope(); }
+		{
+			boolean error; 
+			error = Tools.putActor($name.text, Integer.parseInt($mailboxSize.text));
+			if (error){
+				print("actor darim:)");
 			}
+			beginScope();
+		}
 			(state | receiver | NL)*
 		'end' (NL | EOF)
 		{endScope();}
@@ -53,19 +36,30 @@ actor:
 state:
 			type name = ID (',' ID)* NL 
 			{
-				try{
-					putGlobalVar($name.text,$type.return_type);
+				boolean error = Tools.putGlobalVar($name.text,$type.return_type);
+				if (error){
+					print("global darim:P");
 				}
-				catch(ItemAlreadyExistsException e) {
-            	print("Exists");
-        }
+				
 			}
 	;
 
 receiver:
-		'receiver' ID '(' (type ID (',' type ID)*)? ')' NL
+		{
+			ArrayList<Type> arguments = new ArrayList<Type>();
+		}
+		'receiver' name = ID '(' ( type  ID {arguments.add($type.return_type);}(','  type ID{arguments.add($type.return_type);})*)? ')' NL
+		{boolean error;
+		error = Tools.putReceiver($name.text,arguments);
+			if (error){
+				print("receiver ham darim:D");
+			}
+			beginScope();
+			}
 			statements
 		'end' NL
+		{endScope();}
+
 	;
 
 type returns [Type return_type]:
@@ -96,8 +90,19 @@ statement:
 	;
 
 stm_vardef:
-	 type ID ('=' expr)? (',' ID ('=' expr)?)* NL 
+	{
+		ArrayList<String> names = new ArrayList<String>();
+	}
+	 type name = ID{names.add($name.text);} ('=' expr)? (',' name2 = ID{names.add($name2.text);} ('=' expr)?)* NL 
+	{for(int i = 0 ; i < names.size() ; i++){
+		boolean error = Tools.putLocalVar(names.get(i),$type.return_type );
+		if(error){
+			print("Localam darim:|");
+		}
+	}
+	}
 	;
+
 
 stm_tell:
 		(ID | 'sender' | 'self') '<<' ID '(' (expr (',' expr)*)? ')' NL

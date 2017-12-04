@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+
 public class SymbolTableReceiverItem extends SymbolTableItem {
   public SymbolTableReceiverItem(Receiver receiver, int offset) {
     this.receiver = receiver;
@@ -6,7 +8,13 @@ public class SymbolTableReceiverItem extends SymbolTableItem {
 
   @Override
   public String getKey() {
-    return receiver.getName();
+    ArrayList <Type> argumentTypes = receiver.getArgumentTypes();
+    String name = receiver.getName();
+    String key = name+'#';
+    for(int i = 0 ; i < argumentTypes.size(); i++){
+      key += argumentTypes.get(i).toString(); 
+    }
+    return key;
   }
 
   public int getOffset() {

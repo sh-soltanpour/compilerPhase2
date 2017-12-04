@@ -1,4 +1,5 @@
-public class Actor {
+import java.util.*;
+public class Receiver {
   public Receiver(String name, ArrayList<Type> argumentTypes) {
     this.name = name;
     this.argumentTypes = argumentTypes;

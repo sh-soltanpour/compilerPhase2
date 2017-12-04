@@ -22,8 +22,13 @@ program:
 actor:
 		'actor' name=ID '<' mailboxSize=CONST_NUM '>' NL
 		{
+			int mailboxSize = Integer.parseInt($mailboxSize.text);
+			if (mailboxSize <= 0){
+				print("Actore kamtar az 0");
+				mailboxSize = 0;
+			}
 			boolean error; 
-			error = Tools.putActor($name.text, Integer.parseInt($mailboxSize.text));
+			error = Tools.putActor($name.text, mailboxSize);
 			if (error){
 				print("actor darim:)");
 			}
@@ -63,8 +68,20 @@ receiver:
 	;
 
 type returns [Type return_type]:
-		'char' ('[' CONST_NUM ']')* {$return_type = CharType.getInstance();}
-	|	'int' ('[' CONST_NUM ']')* 	{$return_type = IntType.getInstance();}
+		'char' {$return_type = CharType.getInstance();} ('[' size=CONST_NUM{
+			int size = Integer.parseInt($size.text);
+			if(size <= 0){
+				print("araye kochiktar az 0 eh:|");
+				size = 0;
+			}
+			$return_type= new ArrayType($return_type,size);} ']')* 
+	|	'int'  {$return_type = IntType.getInstance();}  ('[' size=CONST_NUM {
+			int size = Integer.parseInt($size.text);
+			if(size <= 0){
+				print("araye kochiktar az 0 eh:|");
+				size = 0;
+			}
+		} ']')* 	
 	;
 
 block:
@@ -113,15 +130,16 @@ stm_write:
 	;
 
 stm_if_elseif_else:
-		'if' expr NL statements
-		('elseif' expr NL statements)*
-		('else' NL statements)?
+	
+		'if' expr NL{beginScope();} statements {endScope();}
+		('elseif' expr NL{beginScope();} statements{endScope();})*
+		('else' NL {beginScope();}statements{endScope();})?
 		'end' NL
 	;
 
 stm_foreach:
 		'foreach' ID 'in' expr NL
-			statements
+			{beginScope();}statements{endScope();}
 		'end' NL
 	;
 

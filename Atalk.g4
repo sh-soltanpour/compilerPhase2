@@ -1,17 +1,65 @@
 grammar Atalk;
-
+@members{
+	void print(String str){
+        System.out.println(str);
+    }
+	void beginScope() {
+    	int offset = 0;
+    	if(SymbolTable.top != null)
+        	offset = SymbolTable.top.getOffset(Register.SP);
+      SymbolTable.push(new SymbolTable());
+      SymbolTable.top.setOffset(Register.SP, offset);
+    }
+	void endScope(){
+		 print("Stack offset: " + SymbolTable.top.getOffset(Register.SP));
+  	SymbolTable.pop();
+	}
+	void putLocalVar(String name, Type type) throws ItemAlreadyExistsException{
+		SymbolTable.top.put(
+            new SymbolTableLocalVariableItem(
+                new Variable(name, type),
+                SymbolTable.top.getOffset(Register.SP)
+            )
+        );
+	 }
+	 void putGlobalVar(String name, Type type) throws ItemAlreadyExistsException{
+		SymbolTable.top.put(
+            new SymbolTableGlobalVariableItem(
+                new Variable(name, type),
+                SymbolTable.top.getOffset(Register.GP)
+            )
+        );
+	 }
+}
 program:
-		(actor | NL)*
+		{beginScope();}(actor | NL)*{endScope();}
 	;
 
 actor:
-		'actor' ID '<' CONST_NUM '>' NL
+		'actor' name=ID '<' mailboxSize=CONST_NUM '>' NL
+		 {
+				try{
+					Tools.putActor($name.text,Integer.parseInt($mailboxSize.text));
+				}
+				catch(ItemAlreadyExistsException e) {
+            	print("Exists");
+        }
+				finally{beginScope(); }
+			}
 			(state | receiver | NL)*
 		'end' (NL | EOF)
+		{endScope();}
 	;
-
 state:
-		type ID (',' ID)* NL
+			type name = ID (',' ID)* NL 
+			{
+				try{
+					putGlobalVar($name.text,$type.return_type);
+				}
+				catch(ItemAlreadyExistsException e) {
+            	print("Exists");
+        }
+			}
 	;
 
 receiver:
@@ -20,9 +68,9 @@ receiver:
 		'end' NL
 	;
 
-type:
-		'char' ('[' CONST_NUM ']')*
-	|	'int' ('[' CONST_NUM ']')*
+type returns [Type return_type]:
+		'char' ('[' CONST_NUM ']')* {$return_type = CharType.getInstance();}
+	|	'int' ('[' CONST_NUM ']')* 	{$return_type = IntType.getInstance();}
 	;
 
 block:
@@ -48,7 +96,7 @@ statement:
 	;
 
 stm_vardef:
-		type ID ('=' expr)? (',' ID ('=' expr)?)* NL
+	 type ID ('=' expr)? (',' ID ('=' expr)?)* NL 
 	;
 
 stm_tell:

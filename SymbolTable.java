@@ -54,10 +54,17 @@ public class SymbolTable {
 
 		if(item instanceof SymbolTableVariableItemBase) {
 			SymbolTableVariableItemBase castedItem = (SymbolTableVariableItemBase) item;
+			int oldOffset = getOffset(castedItem.getBaseRegister());
+			int newOffset = getOffset(castedItem.getBaseRegister()) + castedItem.getSize();
 			setOffset(
-				castedItem.getBaseRegister(),
-				getOffset(castedItem.getBaseRegister()) + castedItem.getSize()
+				castedItem.getBaseRegister(),newOffset	
 			);
+
+			Variable variable = castedItem.getVariable();
+			String name = variable.getName();
+			String type = variable.getType().toString();
+			Tools.messages.add("variable name: "+name +" with type: " + type +" offset: " + String.valueOf(oldOffset)
+			+ ", size: " + String.valueOf(variable.getType().size()));
 		}
 	}
 

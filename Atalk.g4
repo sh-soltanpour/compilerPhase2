@@ -11,12 +11,12 @@ grammar Atalk;
       SymbolTable.top.setOffset(Register.SP, offset);
     }
 	void endScope(){
-		 print("Stack offset: " + SymbolTable.top.getOffset(Register.SP));
-  	SymbolTable.pop();
+  		SymbolTable.pop();
 	}
 }
 program:
-		{beginScope();}(actor | NL)*{endScope();}
+		{beginScope();}(actor | NL)*{endScope(); if(Tools.codeIsValid)Tools.printMessages();}
+		
 	;
 
 actor:
@@ -24,13 +24,18 @@ actor:
 		{
 			int mailboxSize = Integer.parseInt($mailboxSize.text);
 			if (mailboxSize <= 0){
-				print("Actore kamtar az 0");
+				print("line "+ String.valueOf($name.getLine())+"Actore kamtar az 0");
 				mailboxSize = 0;
+				Tools.codeIsValid = false;
 			}
 			boolean error; 
 			error = Tools.putActor($name.text, mailboxSize);
 			if (error){
-				print("actor darim:)");
+				Tools.codeIsValid = false;
+				print("line "+ String.valueOf($name.getLine())+"actor darim:)");
+			}
+			else {
+				Tools.messages.add("actor:"+$name.text + " with mailboxSize:"+$mailboxSize.text);
 			}
 			beginScope();
 		}
@@ -43,9 +48,9 @@ state:
 			{
 				boolean error = Tools.putGlobalVar($name.text,$type.return_type);
 				if (error){
-					print("global darim:P");
+				Tools.codeIsValid = false;
+					print("line "+ String.valueOf($name.getLine())+"global darim:P");
 				}
-				
 			}
 	;
 
@@ -57,7 +62,15 @@ receiver:
 		{boolean error;
 		error = Tools.putReceiver($name.text,arguments);
 			if (error){
-				print("receiver ham darim:D");
+				Tools.codeIsValid = false;
+				print("line "+ String.valueOf($name.getLine())+"receiver ham darim:D");
+			}
+			else {
+				String message = "Receiver Name : " + $name.text + " argumentTypes :";
+				for (int i = 0; i < arguments.size(); i++){
+					message += arguments.get(i).toString() + ",";
+				}
+				Tools.messages.add(message);
 			}
 			beginScope();
 			}
@@ -71,17 +84,20 @@ type returns [Type return_type]:
 		'char' {$return_type = CharType.getInstance();} ('[' size=CONST_NUM{
 			int size = Integer.parseInt($size.text);
 			if(size <= 0){
-				print("araye kochiktar az 0 eh:|");
+				Tools.codeIsValid = false;
+				print("line "+ String.valueOf($size.getLine())+"araye kochiktar az 0 eh:|");
 				size = 0;
 			}
 			$return_type= new ArrayType($return_type,size);} ']')* 
 	|	'int'  {$return_type = IntType.getInstance();}  ('[' size=CONST_NUM {
 			int size = Integer.parseInt($size.text);
 			if(size <= 0){
-				print("araye kochiktar az 0 eh:|");
+				Tools.codeIsValid = false;
+				print("line "+ String.valueOf($size.getLine())+"araye kochiktar az 0 eh:|");
 				size = 0;
 			}
-		} ']')* 	
+			$return_type= new ArrayType($return_type,size);}
+		 ']')* 	
 	;
 
 block[boolean foreach]:
@@ -114,7 +130,8 @@ stm_vardef:
 	{for(int i = 0 ; i < names.size() ; i++){
 		boolean error = Tools.putLocalVar(names.get(i),$type.return_type );
 		if(error){
-			print("Localam darim:|");
+			Tools.codeIsValid = false;
+			print("line "+ String.valueOf($name.getLine())+"Localam darim:|");
 		}
 	}
 	}
@@ -148,9 +165,11 @@ stm_quit:
 	;
 
 stm_break[boolean foreach]:
-		'break' NL{
+		'break' newline = NL{
 			if(!$foreach){
-				print("break biroone X(");	
+				Tools.codeIsValid = false;
+				int line = $newline.getLine();
+				print("line "+ String.valueOf(line)+":break biroone X(");	
 			}
 		
 		}
@@ -260,7 +279,7 @@ CONST_STR:
 	;
 
 NL:
-		'\r'? '\n' { setText("new_line"); }
+		'\r'? '\n' { setText("new_line");}
 	;
 
 ID:

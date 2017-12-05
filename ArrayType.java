@@ -15,13 +15,12 @@ public class ArrayType extends Type {
 
 	@Override
 	public String toString() {
-		return "Array of" + type.toString();
+		return "Arrayof " + type.toString();
     }
     public Type getType(){
         return type;
     }
 
-	private static ArrayType instance;
 
     Type type;
     int width;

@@ -1,7 +1,13 @@
-import java.util.*;
+import java.util.ArrayList;
 
 public class Tools {
-
+  static ArrayList<String> messages = new ArrayList<String> ();
+  static boolean codeIsValid = true;
+  static public void printMessages(){
+		for(int i = 0 ; i < messages.size() ; i++){
+			System.out.println(messages.get(i));
+		}
+	}
   static public boolean putActor(String name, int mailboxSize )  {
     boolean error = false;
     try {

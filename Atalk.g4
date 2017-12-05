@@ -24,7 +24,7 @@ actor:
 		{
 			int mailboxSize = Integer.parseInt($mailboxSize.text);
 			if (mailboxSize <= 0){
-				print("line "+ String.valueOf($name.getLine())+"Actore kamtar az 0");
+				print("line "+ String.valueOf($name.getLine())+":Actore kamtar az 0");
 				mailboxSize = 0;
 				Tools.codeIsValid = false;
 			}
@@ -32,7 +32,7 @@ actor:
 			error = Tools.putActor($name.text, mailboxSize);
 			if (error){
 				Tools.codeIsValid = false;
-				print("line "+ String.valueOf($name.getLine())+"actor darim:)");
+				print("line"+ String.valueOf($name.getLine())+":actor darim:)");
 			}
 			else {
 				Tools.messages.add("actor:"+$name.text + " with mailboxSize:"+$mailboxSize.text);
@@ -49,7 +49,7 @@ state:
 				boolean error = Tools.putGlobalVar($name.text,$type.return_type);
 				if (error){
 				Tools.codeIsValid = false;
-					print("line "+ String.valueOf($name.getLine())+"global darim:P");
+					print("line "+ String.valueOf($name.getLine())+":global darim:P");
 				}
 			}
 	;
@@ -63,7 +63,7 @@ receiver:
 		error = Tools.putReceiver($name.text,arguments);
 			if (error){
 				Tools.codeIsValid = false;
-				print("line "+ String.valueOf($name.getLine())+"receiver ham darim:D");
+				print("line "+ String.valueOf($name.getLine())+":receiver ham darim:D");
 			}
 			else {
 				String message = "Receiver Name : " + $name.text + " argumentTypes :";
@@ -85,7 +85,7 @@ type returns [Type return_type]:
 			int size = Integer.parseInt($size.text);
 			if(size <= 0){
 				Tools.codeIsValid = false;
-				print("line "+ String.valueOf($size.getLine())+"araye kochiktar az 0 eh:|");
+				print("line "+ String.valueOf($size.getLine())+":araye kochiktar az 0 eh:|");
 				size = 0;
 			}
 			$return_type= new ArrayType($return_type,size);} ']')* 
@@ -93,7 +93,7 @@ type returns [Type return_type]:
 			int size = Integer.parseInt($size.text);
 			if(size <= 0){
 				Tools.codeIsValid = false;
-				print("line "+ String.valueOf($size.getLine())+"araye kochiktar az 0 eh:|");
+				print("line "+ String.valueOf($size.getLine())+":araye kochiktar az 0 eh:|");
 				size = 0;
 			}
 			$return_type= new ArrayType($return_type,size);}
@@ -131,7 +131,7 @@ stm_vardef:
 		boolean error = Tools.putLocalVar(names.get(i),$type.return_type );
 		if(error){
 			Tools.codeIsValid = false;
-			print("line "+ String.valueOf($name.getLine())+"Localam darim:|");
+			print("line "+ String.valueOf($name.getLine())+":Localam darim:|");
 		}
 	}
 	}

@@ -61,7 +61,7 @@ receiver:
 			}
 			beginScope();
 			}
-			statements
+			statements[false]
 		'end' NL
 		{endScope();}
 
@@ -84,26 +84,26 @@ type returns [Type return_type]:
 		} ']')* 	
 	;
 
-block:
-		'begin' NL
-			statements
-		'end' NL
+block[boolean foreach]:
+		'begin' NL{beginScope();}
+			statements[foreach]
+		'end'{endScope();} NL
 	;
 
-statements:
-		(statement | NL)*
+statements[boolean foreach]:
+		(statement[foreach] | NL)*
 	;
 
-statement:
+statement[boolean foreach]:
 		stm_vardef
 	|	stm_assignment
-	|	stm_foreach
-	|	stm_if_elseif_else
+	|	stm_foreach[foreach]
+	|	stm_if_elseif_else[foreach]
 	|	stm_quit
-	|	stm_break
+	|	stm_break[foreach]
 	|	stm_tell
 	|	stm_write
-	|	block
+	|	block[foreach]
 	;
 
 stm_vardef:
@@ -129,17 +129,17 @@ stm_write:
 		'write' '(' expr ')' NL
 	;
 
-stm_if_elseif_else:
+stm_if_elseif_else[boolean foreach]:
 	
-		'if' expr NL{beginScope();} statements {endScope();}
-		('elseif' expr NL{beginScope();} statements{endScope();})*
-		('else' NL {beginScope();}statements{endScope();})?
+		'if' expr NL{beginScope();} statements[foreach] {endScope();}
+		('elseif' expr NL{beginScope();} statements[foreach]{endScope();})*
+		('else' NL {beginScope();}statements[foreach]{endScope();})?
 		'end' NL
 	;
 
-stm_foreach:
+stm_foreach[boolean foreach]:
 		'foreach' ID 'in' expr NL
-			{beginScope();}statements{endScope();}
+			{beginScope();}statements[true]{endScope();}
 		'end' NL
 	;
 
@@ -147,8 +147,13 @@ stm_quit:
 		'quit' NL
 	;
 
-stm_break:
-		'break' NL
+stm_break[boolean foreach]:
+		'break' NL{
+			if(!$foreach){
+				print("break biroone X(");	
+			}
+		
+		}
 	;
 
 stm_assignment:

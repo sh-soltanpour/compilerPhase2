@@ -44,35 +44,48 @@ actor:
 		{endScope();}
 	;
 state:
-			type name = ID (',' ID)* NL 
+		{ArrayList<String> names = new ArrayList<String>();} 
+		type name = ID {names.add($name.text);}
+		(',' name2 = ID {names.add($name2.text);} )* NL 
 			{
-				boolean error = Tools.putGlobalVar($name.text,$type.return_type);
-				if (error){
-				Tools.codeIsValid = false;
-					print("line "+ String.valueOf($name.getLine())+":global darim:P");
+				for(int i = 0 ; i < names.size() ; i++){
+					boolean error = Tools.putGlobalVar(names.get(i),$type.return_type );
+					if(error){
+						Tools.codeIsValid = false;
+							print("line "+ String.valueOf($name.getLine())+":global darim:P");
+					}
 				}
-			}
+			} 
 	;
 
 receiver:
 		{
 			ArrayList<Type> arguments = new ArrayList<Type>();
+			ArrayList<String> argumentsNames = new ArrayList<String>();
 		}
-		'receiver' name = ID '(' ( type  ID {arguments.add($type.return_type);}(','  type ID{arguments.add($type.return_type);})*)? ')' NL
-		{boolean error;
-		error = Tools.putReceiver($name.text,arguments);
-			if (error){
-				Tools.codeIsValid = false;
-				print("line "+ String.valueOf($name.getLine())+":receiver ham darim:D");
-			}
-			else {
-				String message = "Receiver Name : " + $name.text + " argumentTypes :";
-				for (int i = 0; i < arguments.size(); i++){
-					message += arguments.get(i).toString() + ",";
+		'receiver' name = ID '(' ( type  name2=ID {argumentsNames.add($name2.text);arguments.add($type.return_type);}(','  type name3=ID{argumentsNames.add($name3.text);arguments.add($type.return_type);})*)? ')' NL
+		{
+			boolean error;
+			error = Tools.putReceiver($name.text,arguments);
+				if (error){
+					Tools.codeIsValid = false;
+					print("line "+ String.valueOf($name.getLine())+":receiver ham darim:D");
 				}
-				Tools.messages.add(message);
-			}
-			beginScope();
+				else {
+					String message = "Receiver Name : " + $name.text + " argumentTypes :";
+					for (int i = 0; i < arguments.size(); i++){
+						message += arguments.get(i).toString() + ",";
+					}
+					Tools.messages.add(message);
+				}
+				beginScope();
+				for(int i = 0 ; i < argumentsNames.size() ; i++){
+					error = Tools.putLocalVar(argumentsNames.get(i),arguments.get(i));
+					if(error){
+						Tools.codeIsValid = false;
+							print("line "+ String.valueOf($name.getLine())+":localam darim:P");
+					}
+				}
 			}
 			statements[false]
 		'end' NL
@@ -127,13 +140,14 @@ stm_vardef:
 		ArrayList<String> names = new ArrayList<String>();
 	}
 	 type name = ID{names.add($name.text);} ('=' expr)? (',' name2 = ID{names.add($name2.text);} ('=' expr)?)* NL 
-	{for(int i = 0 ; i < names.size() ; i++){
-		boolean error = Tools.putLocalVar(names.get(i),$type.return_type );
-		if(error){
-			Tools.codeIsValid = false;
-			print("line "+ String.valueOf($name.getLine())+":Localam darim:|");
+	{
+		for(int i = 0 ; i < names.size() ; i++){
+			boolean error = Tools.putLocalVar(names.get(i),$type.return_type );
+			if(error){
+				Tools.codeIsValid = false;
+				print("line "+ String.valueOf($name.getLine())+":Localam darim:|");
+			}
 		}
-	}
 	}
 	;
 

@@ -15,7 +15,7 @@ public class ArrayType extends Type {
 
 	@Override
 	public String toString() {
-		return "Arrayof " + type.toString();
+		return String.valueOf(width) +"ArrayOf " + type.toString();
     }
     public Type getType(){
         return type;

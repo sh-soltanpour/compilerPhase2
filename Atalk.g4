@@ -83,7 +83,7 @@ receiver:
 					error = Tools.putLocalVar(argumentsNames.get(i),arguments.get(i));
 					if(error){
 						Tools.codeIsValid = false;
-								print("line "+ String.valueOf($name.getLine())+"::Localam darim:|");
+								print("line "+ String.valueOf($name.getLine())+":Localam darim:|");
 					}
 				}
 			}

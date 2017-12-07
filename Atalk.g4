@@ -37,7 +37,7 @@ actor:
 			error = Tools.putActor($name.text, mailboxSize);
 			if (error){
 				Tools.codeIsValid = false;
-				print("line"+ String.valueOf($name.getLine())+":actor darim:)");
+				print("line"+ String.valueOf($name.getLine())+":actor " + $name.text + " darim:)");
 			}
 			else {
 				Tools.messages.add("actor:"+$name.text + " with mailboxSize:"+$mailboxSize.text);
@@ -57,7 +57,7 @@ state:
 					boolean error = Tools.putGlobalVar(names.get(i),$type.return_type );
 					if(error){
 						Tools.codeIsValid = false;
-							print("line "+ String.valueOf($name.getLine())+":global darim:P");
+							print("line "+ String.valueOf($name.getLine())+":global "+ names.get(i) + " darim:P");
 					}
 				}
 			} 
@@ -74,7 +74,7 @@ receiver:
 			error = Tools.putReceiver($name.text,arguments);
 				if (error){
 					Tools.codeIsValid = false;
-					print("line "+ String.valueOf($name.getLine())+":receiver ham darim:D");
+					print("line "+ String.valueOf($name.getLine())+":receiver "+ $name.text +" darim:D");
 				}
 				else {
 					String message = "Receiver Name : " + $name.text + " argumentTypes :";
@@ -88,7 +88,7 @@ receiver:
 					error = Tools.putLocalVar(argumentsNames.get(i),arguments.get(i));
 					if(error){
 						Tools.codeIsValid = false;
-								print("line "+ String.valueOf($name.getLine())+":Localam darim:|");
+								print("line "+ String.valueOf($name.getLine())+":Receiver Argument "+ argumentsNames.get(i)  +" darim:|");
 					}
 				}
 			}
@@ -150,7 +150,7 @@ stm_vardef:
 			boolean error = Tools.putLocalVar(names.get(i),$type.return_type );
 			if(error){
 				Tools.codeIsValid = false;
-				print("line "+ String.valueOf($name.getLine())+":Localam darim:|");
+				print("line "+ String.valueOf($name.getLine())+":Local " +  names.get(i) + " darim:|");
 			}
 		}
 	}

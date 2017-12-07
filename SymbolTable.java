@@ -63,7 +63,8 @@ public class SymbolTable {
 			Variable variable = castedItem.getVariable();
 			String name = variable.getName();
 			String type = variable.getType().toString();
-			Tools.messages.add("variable name: "+name +" with type: " + type +" offset: " + String.valueOf(oldOffset)
+			String localOrGlobal = castedItem instanceof SymbolTableLocalVariableItem ? "local" : "global";
+			Tools.messages.add(localOrGlobal + " variable name: "+name +" with type: " + type +" offset: " + String.valueOf(oldOffset)
 			+ ", size: " + String.valueOf(variable.getType().size()));
 		}
 	}

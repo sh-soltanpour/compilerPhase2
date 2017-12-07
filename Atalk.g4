@@ -15,7 +15,12 @@ grammar Atalk;
 	}
 }
 program:
-		{beginScope();}(actor | NL)*{endScope(); if(Tools.codeIsValid)Tools.printMessages();}
+		{beginScope();}(actor | NL)*{endScope(); 
+		if (!Tools.oneActorDefined)
+			print("At least one actor should be defined");
+		else if(Tools.codeIsValid)
+			Tools.printMessages();
+		}
 		
 	;
 
@@ -41,7 +46,7 @@ actor:
 		}
 			(state | receiver | NL)*
 		'end' (NL | EOF)
-		{endScope();}
+		{Tools.oneActorDefined = true;endScope();}
 	;
 state:
 		{ArrayList<String> names = new ArrayList<String>();} 
